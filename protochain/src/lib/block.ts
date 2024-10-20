@@ -1,5 +1,5 @@
-
 import SHA256 from 'crypto-js/sha256'; 
+import Validation from './validation';
 /**
  * Block class
 */
@@ -11,22 +11,17 @@ export default class Block {
   public data: string;
 
   /**
+   * @param block: Block
+   * @returns Block
    * 
-   * @param index // index of the block
-   * @param previousHash // hash of the previous block
-   * @param data // data of the block
    */
 
-  constructor(
-    index: number,
-    previousHash: string,
-    data: string,
-  ) {
-    this.index = index;
-    this.timestamp = Date.now();
-    this.previousHash = previousHash;
-    this.data = data;
-    this.hash = this.getHash();
+  constructor(block?: Block) {
+    this.index = block?.index || 0;
+    this.timestamp = block?.timestamp || Date.now();
+    this.previousHash = block?.previousHash || '';
+    this.data = block?.data || '';  
+    this.hash = block?.hash || this.getHash();
 
   }
 
@@ -39,13 +34,14 @@ export default class Block {
   }
 
   // isValid method
-  isValid(previousHash:string, previousIndex: number): boolean {
-    if (previousIndex !== this.index -1) return false;
-    if (this.hash !== this.getHash()) return false;
-    if (!this.data) return false;
-    if (this.timestamp < 1) return false;
-    if (this.previousHash !== previousHash) return false;
-    return true;
+
+  isValid(previousHash:string, previousIndex: number): Validation {
+    if (previousIndex !== this.index -1) return new Validation(false, 'Invalid index');
+    if (this.hash !== this.getHash()) return new Validation(false, 'Invalid hash');
+    if (!this.data) return new Validation(false, 'Invalid date');
+    if (this.timestamp < 1) return new Validation(false, 'Invalid timestamp');
+    if (this.previousHash !== previousHash) return new Validation(false, 'Invalid previousHash');
+    return new Validation();
   }
   
 
